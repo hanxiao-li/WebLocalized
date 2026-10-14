@@ -1,0 +1,31 @@
+{
+  "name": "game-localization-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env server/index.js",
+    "build": "vite build",
+    "build:demo": "vite build --mode demo",
+    "preview:demo": "vite preview --mode demo --host 127.0.0.1 --port 3002",
+    "start": "node --env-file-if-exists=.env server/index.js --production",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@fontsource/outfit": "^5.2.0",
+    "@phosphor-icons/react": "^2.1.0",
+    "@radix-ui/themes": "^3.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.0",
+    "geoip-lite": "^1.4.10",
+    "helmet": "^8.1.0",
+    "multer": "^2.0.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "sharp": "^0.34.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": { "vite": "^7.0.0", "@vitejs/plugin-react": "^5.0.0" }
+}

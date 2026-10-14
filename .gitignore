@@ -1,0 +1,12 @@
+node_modules/
+dist/
+data/
+.env
+test-results/
+*.log
+dist-demo/
+.env.*
+!.env.example
+*.sqlite*
+*.key
+docs/assets/world-original.png

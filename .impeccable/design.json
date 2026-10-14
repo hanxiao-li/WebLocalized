@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-13T11:55:48.784Z",
+  "title": "Design System: Game Localization Agency",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "深墨"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "米白"
+      },
+      "blue": {
+        "role": "primary",
+        "displayName": "明蓝"
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "焦点浅蓝"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "首页展示标题",
+        "purpose": "居中双行首屏标题。"
+      },
+      "headline": {
+        "displayName": "分区标题",
+        "purpose": "常规公开站内容标题。"
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "hero-enter",
+        "value": "1.05s cubic-bezier(.16,1,.3,1)",
+        "purpose": "首页逐行入场。"
+      },
+      {
+        "name": "section-reveal",
+        "value": ".8s cubic-bezier(.16,1,.3,1)",
+        "purpose": "30px 向上入场，一次触发；延迟最大195ms。减少动态效果和打印禁用。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "1000px"
+      },
+      {
+        "name": "mobile",
+        "value": "767px"
+      },
+      {
+        "name": "wide",
+        "value": "1700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "light pill",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "主要咨询操作",
+      "html": "<button class=\"ds-pill-light\">开始项目 ↗</button>",
+      "css": ".ds-pill-light{background:var(--paper,#f0f0e8);color:var(--ink,#121b25);padding:16px 24px;border:1px solid transparent;border-radius:50px;font:500 15px Outfit,sans-serif;transition:transform .2s}.ds-pill-light:hover{transform:translateY(-3px)}.ds-pill-light:active{transform:scale(.98)}.ds-pill-light:focus-visible{outline:3px solid #98b4ff;outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-pill-light{transition:none}.ds-pill-light:hover,.ds-pill-light:active{transform:none}}"
+    },
+    {
+      "name": "dark pill",
+      "kind": "button",
+      "refersTo": "button-dark",
+      "description": "主要咨询操作",
+      "html": "<button class=\"ds-pill-dark\">开始项目 ↗</button>",
+      "css": ".ds-pill-dark{background:var(--ink,#121b25);color:var(--paper,#f0f0e8);padding:16px 24px;border:1px solid transparent;border-radius:50px;font:500 15px Outfit,sans-serif;transition:transform .2s}.ds-pill-dark:hover{transform:translateY(-3px)}.ds-pill-dark:active{transform:scale(.98)}.ds-pill-dark:focus-visible{outline:3px solid #98b4ff;outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-pill-dark{transition:none}.ds-pill-dark:hover,.ds-pill-dark:active{transform:none}}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "navigation-link",
+      "description": "公开页胶囊导航",
+      "html": "<nav class=\"ds-nav\"><a href=\"#services\">服务</a><a href=\"#work\">案例</a></nav>",
+      "css": ".ds-nav{display:flex;gap:5px}.ds-nav a{display:inline-flex;background:var(--paper,#f0f0e8);color:var(--ink,#121b25);border-radius:22px;padding:8px 16px;font:13px Outfit,sans-serif;text-decoration:none}.ds-nav a:hover{background:#c8d1ff}.ds-nav a:focus-visible{outline:3px solid #98b4ff;outline-offset:4px}"
+    },
+    {
+      "name": "Inquiry field",
+      "kind": "input",
+      "description": "咨询区底边输入",
+      "html": "<label class=\"ds-label\">邮箱<input class=\"ds-input\" type=\"email\" autocomplete=\"email\" required></label>",
+      "css": ".ds-label{display:block;background:var(--blue,#5973f3);color:var(--ink,#121b25);padding:20px;font:13px Outfit,sans-serif}.ds-input{display:block;width:100%;padding:12px 2px;border:0;border-bottom:1px solid #17293f88;border-radius:0;background:transparent;color:inherit;font:inherit}.ds-input:focus-visible{outline:3px solid #101e42;outline-offset:1px}.ds-input:hover{border-bottom-color:#17293f}"
+    },
+    {
+      "name": "Case action",
+      "kind": "button",
+      "description": "整幅案例中的详情入口",
+      "html": "<a class=\"ds-case-more\" href=\"#case\">了解项目 ↗</a>",
+      "css": ".ds-case-more{display:inline-flex;gap:20px;align-items:center;padding:12px 19px;background:var(--paper,#f0f0e8);color:#142435;border-radius:30px;font:13px Outfit,sans-serif;text-decoration:none}.ds-case-more:hover{background:#d2dcff}.ds-case-more:focus-visible{outline:3px solid #98b4ff;outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Reference-led cinematic game localization",
+    "overview": "用户批准的 Wix wh-1204 / PROZI marketing 模板是视觉权威：深色游戏世界影像、大尺度字形、胶囊导航与蓝色区块共同建立气氛。当前系统延续已有方向；不把演示品牌或演示项目视为真实客户证据。没有已批准的独立页面 comp。\n\n公开页面采用宽幅影像和充足留白，阅读页面以正文清晰为先，后台延续现有 Radix Themes 操作界面。滚动入场服务于阅读节奏，减少动态效果偏好优先于演出。",
+    "keyCharacteristics": [
+      "深墨、米白和明蓝形成大面积色块节奏。",
+      "粗体标题、矩形媒体与圆润操作形成对照。",
+      "内容默认可见，动态效果渐进增强。"
+    ],
+    "rules": [
+      {
+        "name": "The Reference Color Rule",
+        "body": "保留参考模板批准的蓝色到米白渐变，不将其替换为无依据的通用卡片底色。",
+        "section": "colors"
+      },
+      {
+        "name": "The Readable First Rule",
+        "body": "未启用观察器时不隐藏内容；减少动态效果及打印模式禁用入场隐藏与位移。",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** 延续用户批准的 Wix 参考与既有深墨、米白、明蓝视觉方向。",
+      "**Do** 保留清晰的键盘焦点、视频控制和减少动态效果支持。",
+      "**Do** 将演示名称、项目和素材作为可编辑示例处理。"
+    ],
+    "donts": [
+      "**Don't** 虚构客户、成果数据或推荐语。",
+      "**Don't** 把手机图片固定成桌面 HTML 高度。",
+      "**Don't** 为装饰效果牺牲正文可读性或媒体播放控制。"
+    ]
+  }
+}
