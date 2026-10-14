@@ -17,7 +17,7 @@ FINISH: Review implementation, document the resulting system, and preserve raste
 ## Implemented surface behavior
 
 - About section is blue; services transition blue to paper, with the heading left and an open 2×2 service grid right on desktop. Mobile stacks heading and grid.
-- Homepage cases use a 3D Coverflow with an active central cover, tilted neighboring covers, and an optional video beside the cover (below on mobile). Buttons, arrow keys and horizontal swipes select cases. Only the selected visible video autoplays muted.
+- Homepage cases use a 3D Coverflow with an active central cover, tilted neighboring covers, and an optional video inset at the lower-right of the active cover on desktop and mobile. Buttons, arrow keys and horizontal swipes select cases. Only the selected visible video autoplays muted.
 - Case details use the optional video as a fullscreen hero, retaining playback while the visitor scrolls; otherwise the cover image fills the hero. Story, optional facts and genuine metrics, then editable text/image/split/video sections follow. Editors can reorder sections.
 - User supplied public/assets/videoplay.mp4; it is configured on the first demonstration case. This asset does not make the illustrative project a verified customer case. Videos use explicit playback controls and do not autoplay audio.
 - User requested text appearances throughout scrolling. Current useScrollReveal.js progressively animates main headings, paragraphs, facts and metric blocks once; the hero has its own entrance, and forms/navigation/footer are excluded. Reduced-motion and print reveal content immediately. Without the observer enhancement, existing rendered text remains visible.

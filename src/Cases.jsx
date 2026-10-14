@@ -21,12 +21,12 @@ export function CaseShowcase({items,s,href,go,locale='en'}){
           {items.map((c,index)=>{
             let offset=index-active;if(items.length>2){if(offset>items.length/2)offset-=items.length;if(offset<-items.length/2)offset+=items.length;}
             const isActive=index===active,hidden=Math.abs(offset)>1;
-            return <article key={c.id} className={'coverflow-slide '+(isActive?'is-active':'')} style={{'--offset':offset,'--depth':Math.abs(offset),zIndex:items.length-Math.abs(offset)}} aria-hidden={hidden||undefined} inert={hidden||undefined}>
+            return <article key={c.id} className={'coverflow-slide '+(isActive?'is-active':'')+(c.video?' has-video':'')} style={{'--offset':offset,'--depth':Math.abs(offset),zIndex:items.length-Math.abs(offset)}} aria-hidden={hidden||undefined} inert={hidden||undefined}>
               {isActive?<a className="coverflow-image" href={href('/cases/'+c.slug)} onClick={e=>go(e,'/cases/'+c.slug)} aria-label={labels.view+' · '+c.title}><img src={c.image||asset('/assets/world.webp')} alt="" width="1920" height="1080" loading="lazy" draggable="false"/><div className="coverflow-caption"><span>{c.category}</span><h3>{c.title}</h3><p>{c.excerpt}</p><span className="coverflow-open">{labels.view}<ArrowUpRight size={20}/></span></div></a>:<button className="coverflow-image" onClick={()=>setSelected(index)} aria-label={labels.choose+' · '+c.title} tabIndex={hidden?-1:0}><img src={c.image||asset('/assets/world.webp')} alt="" width="1920" height="1080" loading="lazy" draggable="false"/></button>}
+              {isActive&&c.video?<div className="coverflow-video" onPointerDown={e=>e.stopPropagation()} onPointerUp={e=>e.stopPropagation()} onKeyDown={e=>e.stopPropagation()}><CaseVideo key={c.id+c.video} src={c.video} poster={c.image} title={c.title+' video'}/></div>:null}
             </article>;
           })}
         </div>
-        {current.video?<div className="coverflow-video"><CaseVideo key={current.id+current.video} src={current.video} poster={current.image} title={current.title+' video'}/><span>{labels.video}</span></div>:null}
       </div>
       <div className="coverflow-footer"><p aria-live="polite" aria-atomic="true">{current.title}</p>{items.length>1?<div className="coverflow-pagination" aria-label={labels.choose}>{items.map((c,i)=><button key={c.id} aria-label={labels.choose+' · '+c.title} aria-current={i===active?'true':undefined} onClick={()=>setSelected(i)}><span/></button>)}</div>:null}</div>
     </>:<p>{s.casesText}</p>}

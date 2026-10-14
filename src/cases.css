@@ -14,28 +14,29 @@
 @media(prefers-reduced-motion:reduce){.scroll-reveal-ready,.scroll-reveal-in{opacity:1;transform:none;animation:none;clip-path:none}}
 @media print{.scroll-reveal-ready,.scroll-reveal-in{opacity:1;transform:none;animation:none;clip-path:none}}
 
-/* Case gallery: a central cover with tilted neighbors and a separate video. */
+/* Case gallery: a central cover with tilted neighbors and an inset video in the lower-right corner. */
 .case-coverflow{padding:75px 5% 55px;overflow:hidden;background:#15232c;color:var(--paper)}
 .coverflow-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:40px}
 .public-site .coverflow-heading h2{margin:0;font-size:clamp(36px,4vw,60px)}
 .coverflow-controls{display:flex;gap:12px;flex-shrink:0}
 .coverflow-controls button{display:grid;place-items:center;width:48px;height:48px;border:1px solid #8b9ba5;border-radius:50%;background:transparent;color:var(--paper);transition:background .2s}
 .coverflow-controls button:hover{background:#354a59}
-.coverflow-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.4fr);gap:4%;align-items:center}
-.coverflow-layout.no-video{grid-template-columns:minmax(0,1fr);max-width:1200px;margin:auto}
+.coverflow-layout{max-width:1400px;margin:auto}
+
 .coverflow-stage{position:relative;perspective:1400px;height:clamp(390px,39vw,560px);touch-action:pan-y;min-width:0}
 .coverflow-slide{position:absolute;top:0;bottom:0;left:15%;width:70%;transform:translateX(calc(var(--offset) * 68%)) translateZ(calc(var(--depth) * -210px)) rotateY(calc(var(--offset) * -38deg));opacity:calc(1 - var(--depth) * .38);transition:transform .85s cubic-bezier(.22,.65,.3,1),opacity .65s;transform-origin:center;backface-visibility:hidden}
 .coverflow-slide[aria-hidden=true]{visibility:hidden;pointer-events:none}
 .coverflow-image{position:relative;display:block;width:100%;height:100%;padding:0;border:0;overflow:hidden;background:#213646;color:var(--paper);text-align:left}
 .coverflow-image>img{width:100%;height:100%;object-fit:cover;object-position:58% center}
 .coverflow-slide.is-active .coverflow-image:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 20%,#0a1726ed);pointer-events:none}
+.coverflow-slide.has-video .coverflow-caption{right:38%;padding:5%}
 .coverflow-caption{position:absolute;bottom:0;left:0;right:0;padding:8%;z-index:1}
 .coverflow-caption>span:first-child{font-size:12px;letter-spacing:.06em}
 .coverflow-caption h3{font-size:clamp(28px,3.3vw,46px);line-height:1.2;margin:12px 0 18px;font-weight:500;overflow-wrap:anywhere}
 .coverflow-caption p{font-size:13px;line-height:1.7;margin-bottom:24px}
 .coverflow-open{display:inline-flex;align-items:center;gap:18px;font-size:13px;border-bottom:1px solid #d3dfe5;padding-bottom:8px}
-.coverflow-video{position:relative;z-index:3;min-width:0}
-.coverflow-video video{display:block;width:100%;aspect-ratio:16/10;object-fit:contain;background:#0e1923}
+.coverflow-video{position:absolute;right:4%;bottom:6%;width:34%;z-index:3;min-width:0}
+.coverflow-video video{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#0e1923}
 .coverflow-video>span{display:block;font-size:13px;margin-top:14px;color:#c8d5df}
 .coverflow-footer{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:32px;min-height:44px}
 .coverflow-footer>p{margin:0;font-size:14px;overflow-wrap:anywhere}
@@ -52,11 +53,11 @@
 .case-detail-hero.has-video .case-detail-heading h1{text-shadow:0 3px 20px #101c28}
 @media(max-width:767px){
   .case-coverflow{padding:55px 5% 35px}.coverflow-heading{margin-bottom:28px}
-  .coverflow-layout{grid-template-columns:minmax(0,1fr);gap:28px}
-  .coverflow-stage{height:420px;perspective:900px}
+
+  .coverflow-stage{height:550px;perspective:900px}
   .coverflow-slide{left:10%;width:80%;transform:translateX(calc(var(--offset) * 65%)) translateZ(calc(var(--depth) * -170px)) rotateY(calc(var(--offset) * -35deg))}
   .coverflow-caption{padding:26px}.coverflow-caption h3{font-size:32px}
-  .coverflow-video{width:80%;justify-self:center}.coverflow-video video{aspect-ratio:16/9}
+  .coverflow-video{width:66%;right:6%;bottom:24px}.coverflow-slide.has-video .coverflow-caption{right:0;bottom:170px;padding:24px}.coverflow-caption p{margin-bottom:16px}
   .coverflow-footer{flex-direction:column;gap:5px;margin-top:24px}
   .case-detail-hero.has-video{min-height:560px}.case-detail-hero.has-video .case-detail-heading h1{font-size:42px}
 }

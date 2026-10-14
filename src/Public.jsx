@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react';
-import {ArrowUpRight,ArrowRight,GlobeHemisphereWest,List,X,ArrowLeft} from '@phosphor-icons/react';
+import {ArrowUpRight,ArrowRight,GlobeHemisphereWest,List,X,ArrowLeft,ArrowUp} from '@phosphor-icons/react';
 import Markdown from 'react-markdown';
 import {api} from './api';
 import {DEMO,pageHref,readLocation,asset} from './runtime';
@@ -34,7 +34,7 @@ export default function Public(){
       <button className="mobile-toggle" aria-label={menu?'Close menu':'Open menu'} aria-expanded={menu} onClick={()=>setMenu(!menu)}>{menu?<X size={24}/>:<List size={24}/>}</button>
       <nav className={menu?'open':''} aria-label="Main navigation">
         {[['about',s.navAbout],['services',s.navServices],['work',s.navCases]].map(([id,label])=><a key={id} href={href()+"#"+id} onClick={e=>{e.preventDefault();nav(id);}}>{label}</a>)}
-        <a href={href('/articles')} onClick={e=>go(e,'/articles')}>{s.navArticles}</a><a href={href()+"#contact"} onClick={e=>{e.preventDefault();nav("contact");}}>{s.navContact}<ArrowUpRight size={14}/></a>
+        <a href={href()+'#articles'} onClick={e=>{if(e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();nav('articles');}}>{s.navArticles}</a><a href={href()+"#contact"} onClick={e=>{e.preventDefault();nav("contact");}}>{s.navContact}<ArrowUpRight size={14}/></a>
       </nav>
       <label className="language-select"><GlobeHemisphereWest size={18}/><span className="sr-only">Language</span><select value={locale} onChange={languageChange}>{languages.map(l=><option key={l.code} value={l.code}>{l.name}</option>)}</select></label>
     </header>
@@ -45,10 +45,11 @@ export default function Public(){
       <section className="services-section section-pad" id="services"><h2>{s.servicesTitle}</h2><div className="service-grid">{s.services.map((item,i)=><article key={i}><span className="service-number" aria-hidden="true">{i+1}</span><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></section>
       <CaseShowcase items={cases} s={s} href={href} go={go} locale={locale}/>
       <section className="process-section section-pad"><div><h2>{s.processTitle}</h2><p>{s.processText}</p></div><div className="process-steps">{s.steps.map((step,i)=><div key={i}><h3>{step.title}</h3><p>{step.text}</p></div>)}</div></section>
-      <section className="articles-section section-pad"><div className="section-tag">{s.navArticles}</div><h2>{s.articlesTitle}</h2><ArticleList items={articles.slice(0,3)} s={s} href={href} go={go}/><a className="text-link" href={href('/articles')} onClick={e=>go(e,'/articles')}>{s.articlesLink}<ArrowRight size={19}/></a></section>
+      <section className="articles-section section-pad" id="articles"><div className="section-tag">{s.navArticles}</div><h2>{s.articlesTitle}</h2><ArticleList items={articles.slice(0,3)} s={s} href={href} go={go}/><a className="text-link" href={href('/articles')} onClick={e=>go(e,'/articles')}>{s.articlesLink}<ArrowRight size={19}/></a></section>
       <Contact s={s} locale={locale}/>
     </>:articlePage?<section className="inner-page section-pad"><h1>{s.navArticles}</h1><p className="section-description">{s.articlesTitle}</p><ArticleList items={articles} s={s} href={href} go={go}/></section>:isPrivacy?<section className="inner-page reading"><h1>{s.privacyLabel}</h1><p>{s.privacyText}</p></section>:detail&&detailMatch[1]==='cases'?<CaseDetail c={detail} s={s} href={href} go={go} next={cases.length>1?cases[(cases.findIndex(c=>c.id===detail.id)+1)%cases.length]:null}/>:detail?<article className="inner-page reading"><a className="text-link" href={href(detailMatch[1]==='articles'?'/articles':'/')} onClick={e=>go(e,detailMatch[1]==='articles'?'/articles':'/')}><ArrowLeft size={18}/>{s.back}</a><p className="article-category">{detail.category}</p><h1>{detail.title}</h1><p className="article-intro">{detail.excerpt}</p>{detail.image?<img width="1000" height="560" className="article-cover" src={detail.image} alt=""/>:null}<div className="markdown"><Markdown>{detail.body}</Markdown></div></article>:notFound?<section className="inner-page reading"><h1>404</h1><p>{locale==='zh-CN'?'该页面尚未发布此语言版本，或页面不存在。':locale==='ja'?'この言語のページはまだ公開されていないか、存在しません。':'This page is unavailable in this language or does not exist.'}</p><a className="pill light" href={href()} onClick={e=>go(e,'/')}>{s.back}<ArrowRight/></a></section>:null}
     </main>
+    <button className="back-to-top" aria-label={locale==='zh-CN'?'回到顶部':locale==='ja'?'ページの先頭へ':'Back to top'} onClick={()=>{document.querySelector('.site-header .wordmark')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}}><ArrowUp size={23} aria-hidden="true"/></button>
     <footer className="site-footer section-pad"><div className="footer-top"><a href={href()} onClick={e=>go(e,'/')} className="footer-brand">{s.brand}</a><p>{s.footerText}</p></div><div className="footer-contact">{s.email?<a href={'mailto:'+s.email}>{s.email}</a>:null}{s.address?<span>{s.address}</span>:null}</div><div className="footer-bottom"><span>© {new Date().getFullYear()} {s.copyright}</span><a href={href('/privacy')} onClick={e=>go(e,'/privacy')}>{s.privacyLabel}</a><a href={pageHref('/admin')}>{locale==='zh-CN'?'管理后台':'Admin'}</a></div>{s.demo?<p className="demo-notice">{s.demoNotice}</p>:null}</footer>
   </div>;
 }

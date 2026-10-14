@@ -10,8 +10,18 @@
 /* Header sits above page media; demo notice occupies the next higher layer. */
 :root{--header-height:90px;--demo-banner-height:0px}
 html{scroll-padding-top:calc(var(--header-height) + var(--demo-banner-height) + 20px)}
-.site-header,.site-header.solid{position:fixed;top:var(--demo-banner-height);height:var(--header-height);z-index:20;background:var(--ink)}
+.site-header,.site-header.solid{position:fixed;top:var(--demo-banner-height);height:var(--header-height);z-index:20;background:rgba(18,27,37,.52);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .site-header.solid+main{padding-top:var(--header-height)}
 .brand-logo{width:80px;height:64px;object-fit:contain;flex-shrink:0;background:transparent;border:0;border-radius:0}
 .wordmark{min-width:0}.wordmark>span{white-space:normal;max-width:260px}
 @media(max-width:767px){:root{--header-height:76px}.brand-logo{width:58px;height:58px}.wordmark{gap:4px}.wordmark>span:last-child{max-width:115px}.site-header{gap:8px}.mobile-toggle{margin-left:0}.site-header nav.open{top:var(--header-height)}}
+
+/* Distinct section surfaces and a persistent, keyboard-accessible return control. */
+.process-section{background:#5973f3;color:#080f19}
+.process-section p{color:#15243b}
+.process-steps>div{border-color:#263b7280}
+.articles-section{background:var(--paper)}
+.back-to-top{position:fixed;right:max(22px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:19;display:grid;place-items:center;width:48px;height:48px;border:1px solid #536479;border-radius:50%;background:var(--paper);color:var(--ink);box-shadow:0 5px 18px #10203026;transition:background .2s,transform .2s}
+.back-to-top:hover{background:#c8d1ff;transform:translateY(-3px)}
+@media(max-width:767px){.back-to-top{right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));width:44px;height:44px}}
+@media(prefers-reduced-transparency:reduce){.site-header,.site-header.solid{background:var(--ink);backdrop-filter:none}}
