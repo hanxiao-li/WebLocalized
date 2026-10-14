@@ -35,6 +35,7 @@ export async function demoApi(path,{method='GET',body={}}={}){
     const list=type=>state.contents.filter(c=>c.type===type&&c.translations[locale]?.live).map(c=>({id:c.id,slug:c.slug,...copy(c.translations[locale].live)}));
     return {locale,languages,site:{...copy(state.contents[0].translations[locale].live),logo:state.contents[0].translations['zh-CN']?.live?.logo||asset('/assets/company-logo.png')},articles:list('article'),cases:list('case')};
   }
+  if(route==='/admin/inquiry-count')return {count:state.inquiries.filter(i=>i.status==='new').length};
   if(route==='/visit'){state.visits.push({...body,day:now().slice(0,10)});state.visits=state.visits.slice(-500);save(state);return {ok:true};}
   if(route==='/inquiries'){state.inquiries.unshift({...body,id:crypto.randomUUID(),created:now(),status:'new'});save(state);return {ok:true};}
   if(route==='/admin/languages'){

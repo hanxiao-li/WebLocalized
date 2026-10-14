@@ -1,4 +1,5 @@
 import express from 'express';
+import {configureMail,sendSmtp} from './mail.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
@@ -21,7 +22,7 @@ const video=z.string().max(1000).refine(v=>!v||/^\/uploads\/[a-f0-9-]+\.(mp4|web
 const caseSchema=articleSchema.extend({video:video.default(''),storyTitle:short.default(''),facts:z.array(z.object({label:short,value:short})).max(8).default([]),story:z.array(pair).max(8).default([]),metrics:z.array(z.object({value:short,label:short})).max(6).default([]),sections:z.array(z.object({type:z.enum(['text','image','split','video']),title:short,text,image,video})).max(20).default([])});
 const schemaFor=type=>type==='site'?siteSchema:type==='case'?caseSchema:articleSchema;
 const safeUser=u=>({id:u.id,email:u.email,name:u.name,role:u.role,active:!!u.active,permissions:roles[u.role]});
-export function createApp({dataDir=path.resolve('data'),origin=process.env.APP_ORIGIN||'http://localhost:3000',production=false,enableRateLimit=true,fetchAI=fetch}={}){
+export function createApp({dataDir=path.resolve('data'),origin=process.env.APP_ORIGIN||'http://localhost:3000',production=false,enableRateLimit=true,fetchAI=fetch,sendMail=sendSmtp}={}){
   const s=openStore(dataDir),app=express();
   app.disable('x-powered-by');
   if(process.env.TRUST_PROXY==='loopback')app.set('trust proxy','loopback');
@@ -92,11 +93,14 @@ export function createApp({dataDir=path.resolve('data'),origin=process.env.APP_O
     s.run('INSERT INTO visits(at,day,path,locale,browser_language,country,visitor) VALUES(?,?,?,?,?,?,?)',at.toISOString(),day,b.path,b.locale,b.browserLanguage,country,visitorHash);
     res.json({ok:true});
   });
-  app.post('/api/inquiries',limiter(3600000,10),(req,res)=>{
+  app.post('/api/inquiries',limiter(3600000,10),async(req,res)=>{
     const b=z.object({name:z.string().min(1).max(100),email:z.email().max(200),company:z.string().max(200),message:z.string().min(5).max(10000),locale:z.string().max(35),website:z.string().max(100).optional()}).parse(req.body);
-    if(b.website)return res.json({ok:true});s.run('INSERT INTO inquiries(id,name,email,company,message,locale,created) VALUES(?,?,?,?,?,?,?)',randomUUID(),b.name,b.email,b.company,b.message,b.locale,new Date().toISOString());res.json({ok:true});
+    if(b.website)return res.json({ok:true});const inquiry={...b,id:randomUUID(),created:new Date().toISOString()};s.run('INSERT INTO inquiries(id,name,email,company,message,locale,created) VALUES(?,?,?,?,?,?,?)',inquiry.id,b.name,b.email,b.company,b.message,b.locale,inquiry.created);const delivery=notifyInquiry(inquiry);res.json({ok:true});await delivery;
   });
   app.use('/api/admin',session);
+  app.use('/api/admin/mail-test',limiter(60000,3));
+  app.use('/api/admin/inquiries/:id/mail-retry',limiter(60000,5));
+  const notifyInquiry=configureMail(app,s,allow,audit,sendMail);
   app.get('/api/admin/languages',allow('read'),(req,res)=>res.json({languages:languages(),defaultLanguage:s.setting('defaultLanguage')}));
   app.post('/api/admin/languages',allow('settings'),(req,res)=>{
     const b=z.object({code:z.string().regex(/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/).max(35),name:z.string().min(1).max(60)}).parse(req.body);
@@ -172,7 +176,8 @@ export function createApp({dataDir=path.resolve('data'),origin=process.env.APP_O
     const group=column=>s.all(`SELECT ${column} AS label,count(*) AS pv,count(DISTINCT visitor) AS uv FROM visits WHERE ${where} GROUP BY ${column} ORDER BY pv DESC`,...args);
     res.json({total:s.get(`SELECT count(*) AS pv,count(DISTINCT visitor) AS uv FROM visits WHERE ${where}`,...args),daily:s.all(`SELECT day AS label,count(*) AS pv,count(DISTINCT visitor) AS uv FROM visits WHERE ${where} GROUP BY day ORDER BY day`,...args),countries:group('country'),languages:group('locale'),browserLanguages:group('browser_language'),pages:group('path').slice(0,30),timezone:s.setting('timezone'),countryOptions:s.all('SELECT DISTINCT country FROM visits ORDER BY country').map(x=>x.country),languageOptions:languages()});
   });
-  app.get('/api/admin/inquiries',allow('inquiries'),(req,res)=>res.json(s.all('SELECT * FROM inquiries ORDER BY created DESC LIMIT 500')));
+  app.get('/api/admin/inquiry-count',allow('inquiries'),(req,res)=>res.json({count:s.get("SELECT COUNT(*) AS count FROM inquiries WHERE status='new'").count}));
+  app.get('/api/admin/inquiries',allow('inquiries'),(req,res)=>res.json(s.all("SELECT i.*,COALESCE(m.state,'disabled') AS mail_status FROM inquiries i LEFT JOIN inquiry_mail m ON m.inquiry_id=i.id ORDER BY i.created DESC LIMIT 500")));
   app.put('/api/admin/inquiries/:id',allow('inquiries'),(req,res)=>{const {status}=z.object({status:z.enum(['new','contacted','closed'])}).parse(req.body);s.run('UPDATE inquiries SET status=? WHERE id=?',status,req.params.id);audit(req,'处理咨询',req.params.id);res.json({ok:true});});
   app.get('/api/admin/audit',allow('settings'),(req,res)=>res.json(s.all('SELECT * FROM audit ORDER BY id DESC LIMIT 200')));
   app.use('/api',(req,res)=>res.status(404).json({error:'接口不存在'}));

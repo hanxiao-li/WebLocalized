@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,readFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {createApp} from '../server/app.js';
+
+test('Inquiry mail: encrypted settings, delivery failure isolation, retry and authorization',async t=>{
+  const dir=mkdtempSync(path.join(tmpdir(),'studio-mail-')),sent=[];
+  let failDelivery=false;
+  const {app,store}=createApp({dataDir:dir,enableRateLimit:false,sendMail:async(config,message)=>{assert.equal(config.password,'mail-test-secret');if(failDelivery)throw new Error('SMTP down');sent.push({config,message});}});
+  const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
+  t.after(()=>{server.close();store.db.close();rmSync(dir,{recursive:true,force:true});});
+  const base='http://127.0.0.1:'+server.address().port+'/api';let cookie='',csrf='';
+  const call=async(route,method='GET',body)=>{const r=await fetch(base+route,{method,headers:{'Content-Type':'application/json',Cookie:cookie,'X-CSRF-Token':csrf},body:body?JSON.stringify(body):undefined});return {status:r.status,data:await r.json(),headers:r.headers};};
+  assert.equal((await call('/admin/mail-settings')).status,401);
+  const auth=await call('/setup','POST',{token:readFileSync(store.setupPath,'utf8'),email:'owner@example.test',name:'Owner',password:'test-password-mail-2026'});cookie=auth.headers.get('set-cookie').split(';')[0];csrf=auth.data.csrf;
+  const config={enabled:true,to:'team@example.test',from:'sender@example.test',host:'smtp.example.test',port:465,user:'sender@example.test',password:'mail-test-secret'};
+  assert.equal((await call('/admin/mail-settings','PUT',config)).status,200);
+  const exposed=(await call('/admin/mail-settings')).data;
+  assert.equal(exposed.configured,true);assert.equal(exposed.password,undefined);assert.ok(!JSON.stringify(store.setting('mail')).includes('mail-test-secret'));
+  assert.equal((await call('/admin/mail-settings','PUT',{...config,password:'',enabled:false,host:'other.example.test'})).status,400);
+  assert.equal((await call('/admin/mail-test','POST',{})).status,200);assert.equal(sent.length,1);
+  const inquiry={name:'客户',email:'client@example.test',company:'测试工作室',message:'请提供游戏翻译报价。',locale:'zh-CN'};
+  assert.equal((await call('/inquiries','POST',inquiry)).status,200);
+  let rows=(await call('/admin/inquiries')).data;assert.equal(rows[0].mail_status,'sent');assert.equal(sent[1].config.to,config.to);assert.equal(sent[1].message.replyTo,inquiry.email);assert.ok(sent[1].message.text.includes(inquiry.message));
+  assert.equal((await call('/admin/inquiries/'+rows[0].id+'/mail-retry','POST',{})).status,409);
+  failDelivery=true;
+  assert.equal((await call('/inquiries','POST',{...inquiry,name:'失败测试'})).status,200);
+  rows=(await call('/admin/inquiries')).data;const failed=rows.find(i=>i.name==='失败测试');assert.equal(failed.mail_status,'failed');assert.equal((await call('/admin/inquiry-count')).data.count,2);
+  failDelivery=false;assert.equal((await call('/admin/inquiries/'+failed.id+'/mail-retry','POST',{})).data.state,'sent');
+  await call('/admin/mail-settings','PUT',{...config,enabled:false,password:''});
+  await call('/inquiries','POST',{...inquiry,name:'关闭通知'});assert.equal((await call('/admin/inquiries')).data.find(i=>i.name==='关闭通知').mail_status,'disabled');
+  const before=sent.length;await call('/inquiries','POST',{...inquiry,website:'spam'});assert.equal(sent.length,before);assert.equal((await call('/admin/inquiry-count')).data.count,3);
+  cookie='';csrf='';assert.equal((await call('/admin/mail-test','POST',{})).status,401);
+});

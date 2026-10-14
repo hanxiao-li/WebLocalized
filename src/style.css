@@ -10,7 +10,7 @@
 /* Header sits above page media; demo notice occupies the next higher layer. */
 :root{--header-height:90px;--demo-banner-height:0px}
 html{scroll-padding-top:calc(var(--header-height) + var(--demo-banner-height) + 20px)}
-.site-header,.site-header.solid{position:fixed;top:var(--demo-banner-height);height:var(--header-height);z-index:20;background:rgba(18,27,37,.52);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.site-header,.site-header.solid{position:fixed;top:var(--demo-banner-height);height:var(--header-height);z-index:20;background:rgba(18,27,37,.10);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .site-header.solid+main{padding-top:var(--header-height)}
 .brand-logo{width:80px;height:64px;object-fit:contain;flex-shrink:0;background:transparent;border:0;border-radius:0}
 .wordmark{min-width:0}.wordmark>span{white-space:normal;max-width:260px}
@@ -25,3 +25,5 @@ html{scroll-padding-top:calc(var(--header-height) + var(--demo-banner-height) + 
 .back-to-top:hover{background:#c8d1ff;transform:translateY(-3px)}
 @media(max-width:767px){.back-to-top{right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));width:44px;height:44px}}
 @media(prefers-reduced-transparency:reduce){.site-header,.site-header.solid{background:var(--ink);backdrop-filter:none}}
+
+.site-header .wordmark,.site-header .mobile-toggle{text-shadow:0 1px 4px #102030,0 1px 8px #102030}

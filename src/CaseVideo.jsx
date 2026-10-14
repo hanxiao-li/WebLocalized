@@ -19,5 +19,5 @@ export default function CaseVideo({src,poster,title,continuous=false,preview=fal
     preference.addEventListener('change',sync);
     return()=>{disposed=true;observer?.disconnect();preference.removeEventListener('change',sync);video.pause();};
   },[src,continuous,preview]);
-  return <video ref={ref} className={className} src={src} poster={poster||undefined} muted loop playsInline controls preload="none" aria-label={title}/>;
+  return <video ref={ref} className={className} src={src} poster={poster||undefined} loop playsInline controls preload="none" aria-label={title}/>;
 }
