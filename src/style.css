@@ -5,4 +5,13 @@
 .about-section,.contact-section{color:#080f19}.public-site h1,.public-site h2,.public-site h3,.wordmark{overflow-wrap:anywhere}.public-site button,.public-site a,.public-site select{touch-action:manipulation}.site-header nav a:focus-visible{outline-color:#fff}.public-site input:focus-visible,.public-site textarea:focus-visible{outline-color:#101e42}.site-header .language-select{background:#152533b8;padding:3px 9px;border-radius:25px}.contact-section .error{color:#261019;font-weight:600}.public-site .hero{padding-top:env(safe-area-inset-top)}
 
 
-.demo-banner{position:relative;z-index:30;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 20px;padding:12px 20px;background:#e7edff;color:#15233b;font-size:13px;line-height:1.6}.demo-banner a{text-decoration:underline;text-underline-offset:4px}.demo-banner button{border:1px solid #5d6d8d;border-radius:6px;padding:4px 10px;background:transparent;color:inherit;cursor:pointer}.demo-banner button:hover{background:#cad7fa}.demo-banner~.public-site .site-header{top:60px}.demo-contact-note{font-size:13px;line-height:1.7}@media(max-width:767px){.demo-banner{justify-content:flex-start}.demo-banner~.public-site .site-header{top:115px}}
+.demo-banner{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 20px;padding:12px 20px;background:#e7edff;color:#15233b;font-size:13px;line-height:1.6}.demo-banner a{text-decoration:underline;text-underline-offset:4px}.demo-banner button{border:1px solid #5d6d8d;border-radius:6px;padding:4px 10px;background:transparent;color:inherit;cursor:pointer}.demo-banner button:hover{background:#cad7fa}.demo-contact-note{font-size:13px;line-height:1.7}@media(max-width:767px){.demo-banner{justify-content:flex-start}}
+
+/* Header sits above page media; demo notice occupies the next higher layer. */
+:root{--header-height:90px;--demo-banner-height:0px}
+html{scroll-padding-top:calc(var(--header-height) + var(--demo-banner-height) + 20px)}
+.site-header,.site-header.solid{position:fixed;top:var(--demo-banner-height);height:var(--header-height);z-index:20;background:var(--ink)}
+.site-header.solid+main{padding-top:var(--header-height)}
+.brand-logo{width:80px;height:64px;object-fit:contain;flex-shrink:0;background:transparent;border:0;border-radius:0}
+.wordmark{min-width:0}.wordmark>span{white-space:normal;max-width:260px}
+@media(max-width:767px){:root{--header-height:76px}.brand-logo{width:58px;height:58px}.wordmark{gap:4px}.wordmark>span:last-child{max-width:115px}.site-header{gap:8px}.mobile-toggle{margin-left:0}.site-header nav.open{top:var(--header-height)}}

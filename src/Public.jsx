@@ -5,6 +5,7 @@ import {api} from './api';
 import {DEMO,pageHref,readLocation,asset} from './runtime';
 import {CaseShowcase,CaseDetail} from './Cases';
 import {useScrollReveal} from './useScrollReveal';
+import {defaultLogo,setFavicon} from './branding';
 
 const remember={get(){try{return localStorage.getItem('studio-language');}catch{return null;}},set(v){try{localStorage.setItem('studio-language',v);}catch{}}};
 function useLocation(){const [url,setUrl]=useState(()=>readLocation());useEffect(()=>{const fn=()=>setUrl(readLocation());window.addEventListener('popstate',fn);return()=>window.removeEventListener('popstate',fn);},[]);return [url,(href)=>{history.pushState({},'',href);setUrl(readLocation());window.scrollTo({top:0});}];}
@@ -12,6 +13,7 @@ export default function Public(){
   const [url,navigate]=useLocation(),[data,setData]=useState(null),[error,setError]=useState(''),[menu,setMenu]=useState(false);
   const requested=url.searchParams.get('lang')||remember.get()||'';
   useScrollReveal(url.pathname,data);
+  useEffect(()=>{if(data)setFavicon(data.site.logo);},[data]);
   useEffect(()=>{let active=true;setError('');api('/public?lang='+encodeURIComponent(requested)).then(d=>{if(active){setData(d);document.documentElement.lang=d.locale;document.title=d.site.brand+' | '+d.site.tagline;document.querySelector('meta[name="description"]').content=d.site.heroDescription;}}).catch(e=>active&&setError(e.message));return()=>{active=false;};},[requested]);
   useEffect(()=>{if(!data)return;api('/visit',{method:'POST',body:{path:url.pathname,locale:data.locale,browserLanguage:navigator.language||'unknown'}}).catch(()=>{});},[url.pathname,data?.locale]);
   useEffect(()=>{if(data&&url.hash){requestAnimationFrame(()=>document.getElementById(url.hash.slice(1))?.scrollIntoView());}},[data,url.hash]);
@@ -28,7 +30,7 @@ export default function Public(){
   return <div className="public-site">
     <a className="skip-link" href="#main">{locale==='zh-CN'?'跳转到正文':'Skip to content'}</a>
     <header className={'site-header '+(!isHome&&!url.pathname.startsWith('/cases/')?'solid':'')}>
-      <a className="wordmark" href={href()} onClick={e=>go(e,'/')} aria-label={s.brand}><span className="brand-symbol" aria-hidden="true">L<span>P</span></span><span>{s.brand}</span></a>
+      <a className="wordmark" href={href()} onClick={e=>go(e,'/')} aria-label={s.brand}><img className="brand-logo" src={s.logo||defaultLogo()} alt="" width="80" height="64"/><span>{s.brand}</span></a>
       <button className="mobile-toggle" aria-label={menu?'Close menu':'Open menu'} aria-expanded={menu} onClick={()=>setMenu(!menu)}>{menu?<X size={24}/>:<List size={24}/>}</button>
       <nav className={menu?'open':''} aria-label="Main navigation">
         {[['about',s.navAbout],['services',s.navServices],['work',s.navCases]].map(([id,label])=><a key={id} href={href()+"#"+id} onClick={e=>{e.preventDefault();nav(id);}}>{label}</a>)}
@@ -41,7 +43,7 @@ export default function Public(){
       <section className="hero"><img width="1920" height="1080" className="hero-image" src={s.heroImage||asset('/assets/world.webp')} alt="" fetchPriority="high"/><div className="hero-shade"/><div className="hero-inner" key={locale}><h1 aria-label={s.heroTitle}>{s.heroTitle.split("\n").map((line,i)=><span className="hero-line" key={i}><span style={{animationDelay:(i*150+80)+"ms"}}>{line}</span></span>)}</h1><p className="hero-description"><span className="hero-business">{s.tagline}</span>{s.heroDescription}</p><button className="pill light" onClick={()=>nav('contact')}>{s.cta}<ArrowUpRight size={20}/></button></div></section>
       <section className="about-section section-pad" id="about"><div className="section-tag">{s.navAbout}</div><h2>{s.aboutTitle}</h2><div className="about-bottom"><span className="about-glyph" aria-hidden="true">Aa<span>あ</span><span>译</span></span><p>{s.aboutText}</p></div></section>
       <section className="services-section section-pad" id="services"><h2>{s.servicesTitle}</h2><div className="service-grid">{s.services.map((item,i)=><article key={i}><span className="service-number" aria-hidden="true">{i+1}</span><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></section>
-      <CaseShowcase items={cases} s={s} href={href} go={go}/>
+      <CaseShowcase items={cases} s={s} href={href} go={go} locale={locale}/>
       <section className="process-section section-pad"><div><h2>{s.processTitle}</h2><p>{s.processText}</p></div><div className="process-steps">{s.steps.map((step,i)=><div key={i}><h3>{step.title}</h3><p>{step.text}</p></div>)}</div></section>
       <section className="articles-section section-pad"><div className="section-tag">{s.navArticles}</div><h2>{s.articlesTitle}</h2><ArticleList items={articles.slice(0,3)} s={s} href={href} go={go}/><a className="text-link" href={href('/articles')} onClick={e=>go(e,'/articles')}>{s.articlesLink}<ArrowRight size={19}/></a></section>
       <Contact s={s} locale={locale}/>

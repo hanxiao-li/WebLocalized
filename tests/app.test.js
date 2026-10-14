@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtempSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import sharp from 'sharp';
 import {createApp} from '../server/app.js';
 
 test('Local CMS: auth, drafts, publication, permissions, languages, analytics and persistence',async t=>{
@@ -28,6 +29,21 @@ test('Local CMS: auth, drafts, publication, permissions, languages, analytics an
     assert.equal((await call('/admin/content','POST',{},OriginHeader())).status,403);
   });
   let id,original;
+  await t.test('shared logo changes only after publication and rejects external image URLs',async()=>{
+    const record=(await call('/admin/content/site/zh-CN')).data;
+    const upload=new FormData();upload.append('file',new Blob([readFileSync('public/assets/company-logo.png')],{type:'image/png'}),'company-logo.png');
+    const uploaded=await fetch(base+'/api/admin/upload',{method:'POST',headers:{Cookie:cookie,'X-CSRF-Token':csrf},body:upload});
+    assert.equal(uploaded.status,200);
+    const {url:logo}=await uploaded.json();
+    assert.equal((await sharp(readFileSync(path.join(dir,logo.slice(1)))).metadata()).hasAlpha,true);
+    assert.equal((await call('/public?lang=en')).data.site.logo,'/assets/company-logo.png');
+    assert.equal((await call('/admin/content/site/zh-CN','PUT',{data:{...record.translation.draft,logo:'https://external.test/logo.png'},revision:record.translation.revision,sourceRevision:record.sourceRevision})).status,400);
+    assert.equal((await call('/admin/content/site/zh-CN','PUT',{data:{...record.translation.draft,logo},revision:record.translation.revision,sourceRevision:record.sourceRevision})).status,200);
+    assert.equal((await call('/public?lang=en')).data.site.logo,'/assets/company-logo.png');
+    const saved=(await call('/admin/content/site/zh-CN')).data;
+    assert.equal((await call('/admin/content/site/zh-CN/publish','POST',{revision:saved.translation.revision})).status,200);
+    for(const locale of ['zh-CN','en','ja'])assert.equal((await call('/public?lang='+locale)).data.site.logo,logo);
+  });
   await t.test('drafts stay private and concurrent saves are rejected',async()=>{
     const created=await call('/admin/content','POST',{type:'article',slug:'qa-article',title:'未公开标题'});assert.equal(created.status,200);id=created.data.id;
     assert.ok(!(await call('/public?lang=zh-CN')).data.articles.some(x=>x.id===id));
