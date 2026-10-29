@@ -16,7 +16,7 @@ function seed(){
     const item={id:'demo-world-'+i,type:'case',slug:'demo-world-'+i,created:now(),translations:{}};
     for(const locale of ['zh-CN','en','ja'])add(item,locale,{...caseDefaults(locale),title:locale==='zh-CN'?(i===1?'雾境远征':'星海回声'):locale==='ja'?(i===1?'霧の向こうへ':'星々のこだま'):(i===1?'Beyond the mist':'Echoes of the stars'),excerpt:locale==='zh-CN'?'演示案例 / 请替换为授权项目':'Illustrative case / not a client project',category:i===1?'FANTASY':'SCI-FI',body:'Illustrative layout.',image:'/assets/world.webp',video:i===1?'/assets/videoplay.mp4':''});contents.push(item);
   }
-  for(const c of caseCopy){const item=contents.find(x=>x.slug===c.slug);for(const locale of Object.keys(item.translations)){for(const field of ['draft','live'])Object.assign(item.translations[locale][field],casePayload(c,locale),{title:locale==='zh-CN'?c.title:item.translations[locale][field].title});}}
+  for(const c of caseCopy){const item=contents.find(x=>x.slug===c.slug);for(const locale of Object.keys(item.translations)){for(const field of ['draft','live'])Object.assign(item.translations[locale][field],media(casePayload(c,locale)),{title:locale==='zh-CN'?c.title:item.translations[locale][field].title});}}
   return {version:1,contents,languages:[{code:'zh-CN',name:'简体中文',enabled:true,sort:0},{code:'en',name:'English',enabled:true,sort:1},{code:'ja',name:'日本語',enabled:true,sort:2}],defaultLanguage:'en',visits:[],inquiries:[],audit:[]};
 }
 function load(){try{const value=JSON.parse(localStorage.getItem(KEY));if(value?.version===1){if(!value.word2worldCopyV1){for(const [locale,t] of Object.entries(value.contents[0].translations)){for(const state of ['draft','live']){if(!t[state])continue;for(const [key,next] of Object.entries(siteSeeds[locale]||{}))if(JSON.stringify(t[state][key])===JSON.stringify(legacySiteSeeds[locale]?.[key]))t[state][key]=copy(next);}}value.word2worldCopyV1=true;}return value;}}catch{}return seed();}
@@ -31,6 +31,8 @@ export async function demoApi(path,{method='GET',body={}}={}){
   if(route==='/me'||route==='/login')return {user,csrf:'demo'};
   if(route==='/logout')return {ok:true};
   if(route==='/public'){
+    for(const entry of caseCopy){const item=state.contents.find(c=>c.slug===entry.slug);if(item)for(const t of Object.values(item.translations))for(const field of ['draft','live'])if(t[field]&&(!t[field].image||t[field].image.endsWith('/assets/world.webp')||t[field].image===entry.image))t[field].image=asset(entry.image);}
+
     const languages=active(),requested=url.searchParams.get('lang');
     const match=code=>languages.find(l=>l.code.toLowerCase()===code.toLowerCase())||languages.find(l=>l.code.split('-')[0]===code.split('-')[0]);
     const locale=(requested&&match(requested)||navigator.languages.map(match).find(Boolean)||languages.find(l=>l.code==='en')||languages.find(l=>l.code===state.defaultLanguage)||languages[0]).code;

@@ -14,7 +14,7 @@ import {openStore} from './db.js';
 import {hashPassword,checkPassword,digest,seal,unseal,cookieValue,roles} from './security.js';
 
 const fail=(status,message)=>Object.assign(new Error(message),{status});
-const text=z.string().max(20000), short=z.string().max(300), image=z.string().max(1000).refine(v=>!v||/^\/uploads\/[a-f0-9-]+\.webp$/.test(v)||/^\/assets\/[a-z0-9-]+\.webp$/.test(v),'请上传图片或选择本站素材');
+const text=z.string().max(20000), short=z.string().max(300), image=z.string().max(1000).refine(v=>!v||/^\/uploads\/[a-f0-9-]+\.webp$/.test(v)||/^\/assets\/(?:cases\/)?[a-z0-9-]+\.webp$/.test(v),'请上传图片或选择本站素材');
 const pair=z.object({title:short,text});
 const siteSchema=z.object({brand:short,tagline:short,heroTitle:short,heroDescription:text,heroImage:image,logo:z.union([image,z.literal("/assets/company-logo.png")]).optional(),cta:short,navAbout:short,navServices:short,navCases:short,navArticles:short,navContact:short,aboutTitle:short,aboutText:text,servicesTitle:short,services:z.array(pair).max(12),processTitle:short,processText:text,steps:z.array(pair).max(8),casesTitle:short,casesText:text,articlesTitle:short,articlesLink:short,readMore:short,back:short,emptyArticles:short,contactTitle:short,contactText:text,contactName:short,contactEmail:short,contactCompany:short,contactMessage:short,contactSend:short,contactSuccess:short,contactError:short,required:short,footerText:short,demoNotice:short,privacyLabel:short,privacyText:text,email:short,address:short,copyright:short,demo:z.boolean()});
 const articleSchema=z.object({title:z.string().min(1).max(300),excerpt:z.string().max(2000),category:short,body:z.string().max(100000),image});
