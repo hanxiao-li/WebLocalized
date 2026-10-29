@@ -3,7 +3,7 @@ import { mkdirSync, existsSync, writeFileSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import {caseDefaults} from './case-defaults.js';
-import { siteSeeds, sampleArticles } from './seed.js';
+import { siteSeeds, legacySiteSeeds, sampleArticles } from './seed.js';
 
 export function openStore(dir) {
   mkdirSync(dir,{recursive:true}); mkdirSync(path.join(dir,'uploads'),{recursive:true});
@@ -43,6 +43,20 @@ export function openStore(dir) {
       for(const locale of Object.keys(names)){const payload=JSON.stringify({...caseDefaults(locale),title:names[locale],excerpt:locale==='zh-CN'?'演示案例 / 请替换为授权项目':locale==='ja'?'デモ事例 / 実際の顧客案件ではありません':'Illustrative case / not a client project',category:i?'SCI-FI':'FANTASY',body:locale==='zh-CN'?'这是用于展示页面布局的示例，可在后台替换项目介绍、配图及服务内容。':'Illustrative layout. Replace with an authorized project description.',image:'/assets/world.webp'});run('INSERT INTO translations VALUES(?,?,?,?,1,1,?)',id,locale,payload,payload,new Date().toISOString());}
     }
     set('defaultLanguage','en');set('timezone','Asia/Shanghai');set('initialized',true);
+  });
+  // Upgrade untouched template fields while preserving editorial changes.
+  if(!setting('word2worldCopyV1',false))transaction(()=>{
+    for(const row of all("SELECT * FROM translations WHERE content_id='site'")){
+      const upgrade=value=>{
+        if(!value)return value;
+        const data=JSON.parse(value),previous=legacySiteSeeds[row.locale],next=siteSeeds[row.locale];
+        if(!previous||!next)return value;
+        for(const key of Object.keys(next))if(JSON.stringify(data[key])===JSON.stringify(previous[key]))data[key]=next[key];
+        return JSON.stringify(data);
+      };
+      run('UPDATE translations SET draft=?,live=? WHERE content_id=? AND locale=?',upgrade(row.draft),upgrade(row.live),row.content_id,row.locale);
+    }
+    set('word2worldCopyV1',true);
   });
   if(!setting('caseLayoutV2',false))transaction(()=>{
     const rows=all("SELECT t.* FROM translations t JOIN content c ON c.id=t.content_id WHERE c.type='case' AND c.slug IN ('demo-world-1','demo-world-2')");

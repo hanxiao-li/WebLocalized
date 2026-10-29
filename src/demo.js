@@ -1,4 +1,5 @@
-import {siteSeeds,sampleArticles} from '../server/seed.js';
+import {caseCopy,casePayload} from '../server/editorial-content.js';
+import {siteSeeds,legacySiteSeeds,sampleArticles} from '../server/seed.js';
 import {caseDefaults} from '../server/case-defaults.js';
 import {asset} from './runtime.js';
 
@@ -11,13 +12,14 @@ function seed(){
   const add=(item,locale,data)=>{item.translations[locale]={draft:media(data),live:media(data),revision:1,source_revision:1,updated:now()};};
   for(const [locale,site] of Object.entries(siteSeeds))add(contents[0],locale,{...site,contactSuccess:locale==='zh-CN'?'演示提交成功，仅存于你的浏览器，未发送给公司。':locale==='ja'?'デモとして保存しました。このブラウザーのみで保存され、送信されません。':'Demo saved in this browser only. Nothing was sent to the company.'});
   for(const article of sampleArticles){const item={id:article.slug,type:'article',slug:article.slug,created:now(),translations:{}};for(const [locale,data] of Object.entries(article.translations))add(item,locale,{...data,image:'/assets/world.webp'});contents.push(item);}
-  for(let i=1;i<=2;i++){
+  for(let i=1;i<=3;i++){
     const item={id:'demo-world-'+i,type:'case',slug:'demo-world-'+i,created:now(),translations:{}};
     for(const locale of ['zh-CN','en','ja'])add(item,locale,{...caseDefaults(locale),title:locale==='zh-CN'?(i===1?'雾境远征':'星海回声'):locale==='ja'?(i===1?'霧の向こうへ':'星々のこだま'):(i===1?'Beyond the mist':'Echoes of the stars'),excerpt:locale==='zh-CN'?'演示案例 / 请替换为授权项目':'Illustrative case / not a client project',category:i===1?'FANTASY':'SCI-FI',body:'Illustrative layout.',image:'/assets/world.webp',video:i===1?'/assets/videoplay.mp4':''});contents.push(item);
   }
+  for(const c of caseCopy){const item=contents.find(x=>x.slug===c.slug);for(const locale of Object.keys(item.translations)){for(const field of ['draft','live'])Object.assign(item.translations[locale][field],casePayload(c,locale),{title:locale==='zh-CN'?c.title:item.translations[locale][field].title});}}
   return {version:1,contents,languages:[{code:'zh-CN',name:'简体中文',enabled:true,sort:0},{code:'en',name:'English',enabled:true,sort:1},{code:'ja',name:'日本語',enabled:true,sort:2}],defaultLanguage:'en',visits:[],inquiries:[],audit:[]};
 }
-function load(){try{const value=JSON.parse(localStorage.getItem(KEY));if(value?.version===1)return value;}catch{}return seed();}
+function load(){try{const value=JSON.parse(localStorage.getItem(KEY));if(value?.version===1){if(!value.word2worldCopyV1){for(const [locale,t] of Object.entries(value.contents[0].translations)){for(const state of ['draft','live']){if(!t[state])continue;for(const [key,next] of Object.entries(siteSeeds[locale]||{}))if(JSON.stringify(t[state][key])===JSON.stringify(legacySiteSeeds[locale]?.[key]))t[state][key]=copy(next);}}value.word2worldCopyV1=true;}return value;}}catch{}return seed();}
 function save(state){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{throw new Error('浏览器存储空间不足或不可用。请减少上传图片，或恢复演示数据。');}}
 const fail=message=>{throw new Error(message);};
 export function resetDemo(){localStorage.removeItem(KEY);location.href=import.meta.env.BASE_URL;}
